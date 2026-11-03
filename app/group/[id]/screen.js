@@ -26,6 +26,7 @@ import {
   setLastDate,
   setMark,
   setTeacherName,
+  shiftWeek,
   studentsFor,
 } from "../../../lib/model";
 
@@ -121,7 +122,12 @@ export default function GroupScreen() {
     );
   }
 
-  const students = studentsFor(state, group.id, date);
+  const students = studentsFor(state, group.id);
+
+  function changeWeek(weeks) {
+    setFeedback(null);
+    router.push(`/group/${group.id}?date=${shiftWeek(date, weeks)}`);
+  }
   const record = state.records?.[date]?.groups?.[group.id];
 
   async function runReport(mode) {
@@ -145,6 +151,17 @@ export default function GroupScreen() {
       <section className="hero">
         <p className="eyebrow">{formatAmharicDate(date)}</p>
         <h1>{group.name}</h1>
+        <p>የተማሪዎች ስም በየሳምንቱ ይቆያል። ለዚህ ቀን ብቻ ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ይምረጡ።</p>
+      </section>
+
+      <section className="datebar">
+        <button type="button" onClick={() => changeWeek(-1)}>
+          ያለፈው ሳምንት
+        </button>
+        <p className="week-hint">የዚህ ሳምንት ምልክት</p>
+        <button type="button" onClick={() => changeWeek(1)}>
+          የሚቀጥለው ሳምንት
+        </button>
       </section>
 
       <label className="field">
@@ -190,7 +207,7 @@ export default function GroupScreen() {
       {students.length === 0 ? (
         <section className="notice compact">
           <h2>እስካሁን ተማሪ የለም</h2>
-          <p>የእያንዳንዱን ተማሪ ስም ይጨምሩ። ከዚያ በኋላ ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ይምረጡ።</p>
+          <p>ስሞቹን አንድ ጊዜ ይጨምሩ። ከዚያ በኋላ በየሳምንቱ ይቀራሉ፤ ለእያንዳንዱ ሳምንት ምልክቱን ብቻ ይሙሉ።</p>
         </section>
       ) : (
         <ol className="students">
@@ -265,10 +282,12 @@ export default function GroupScreen() {
         <section className="finish-box">
           <p>
             {progress.total === 0
-              ? "በመጀመሪያ የተማሪዎችን ስም ይጨምሩ።"
-              : progress.marked < progress.total
-                ? "ሁሉም ተማሪዎች ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ተብለው ሊመዘገቡ ይገባል።"
-                : "ሁሉም ተማሪዎች ተመዝግበዋል። መዝገቡን ይጨርሱና ሪፖርቱን ይላኩ።"}
+              ? "በመጀመሪያ የተማሪዎችን ስም ይጨምሩ። ስሞቹ በየሳምንቱ ይቀራሉ።"
+              : progress.marked === 0
+                ? "ስሞቹ ተቀምጠዋል። ለዚህ ሳምንት ብቻ ምልክት ያድርጉ።"
+                : progress.marked < progress.total
+                  ? "ሁሉም ተማሪዎች ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ተብለው ሊመዘገቡ ይገባል።"
+                  : "ሁሉም ተማሪዎች ተመዝግበዋል። መዝገቡን ይጨርሱና ሪፖርቱን ይላኩ።"}
           </p>
           <button
             type="button"

@@ -59,7 +59,7 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 
 .brand {
   color: var(--forest);
-  font-family: var(--font-serif), "Noto Serif Ethiopic", serif;
+  font-family: var(--font-sans), "Noto Sans Ethiopic", sans-serif;
   font-size: 1.85rem;
   font-weight: 700;
   text-decoration: none;
@@ -69,7 +69,7 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .tagline { margin: 0; color: var(--muted); }
 
 h1, h2 {
-  font-family: var(--font-serif), "Noto Serif Ethiopic", serif;
+  font-family: var(--font-sans), "Noto Sans Ethiopic", sans-serif;
   line-height: 1.35;
   font-weight: 700;
 }
@@ -129,6 +129,13 @@ p { margin: 0; }
   background: var(--forest);
   color: var(--cream);
   font-weight: 700;
+}
+
+.week-hint {
+  margin: 0;
+  align-self: center;
+  text-align: center;
+  color: var(--muted);
 }
 
 .date-field, .field { display: flex; flex-direction: column; gap: 6px; }
@@ -355,6 +362,21 @@ textarea { resize: vertical; }
 .feedback { margin-top: 12px; font-weight: 700; }
 .feedback.ok { color: var(--present); }
 .feedback.error { color: var(--absent); }
+
+.install-card {
+  margin-top: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--forest);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+}
+
+.install-card h2 { margin-bottom: 6px; }
+.install-card p, .install-card li { color: var(--muted); }
+.install-card ol { margin: 8px 0 0; padding-left: 1.2rem; }
+.install-card .actions { margin-top: 12px; }
 
 .site-footer {
   margin-top: 28px;

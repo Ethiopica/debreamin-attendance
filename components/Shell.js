@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { isISODate } from "../lib/model";
+import InstallApp from "./InstallApp";
 
 export default function Shell({ date, storage = "local", children }) {
   const href = isISODate(date) ? `/?date=${date}` : "/";
@@ -19,6 +20,7 @@ export default function Shell({ date, storage = "local", children }) {
         </Link>
         <p className="tagline">የመገኘት መዝገብ</p>
       </header>
+      <InstallApp />
       {children}
       <footer className={storage === "error" ? "site-footer error" : "site-footer"}>{message}</footer>
     </>

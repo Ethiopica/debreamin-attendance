@@ -18,6 +18,7 @@ import {
   setDayNote,
   setLastDate,
   setTeacherName,
+  shiftWeek,
   stepClassDay,
   upcomingWeekday,
 } from "../lib/model";
@@ -104,14 +105,26 @@ export default function HomeScreen() {
       </section>
 
       {day ? (
+        <section className="datebar">
+          <button type="button" onClick={() => changeDate(shiftWeek(date, -1))}>
+            ያለፈው ሳምንት
+          </button>
+          <p className="week-hint">ስሞቹ ይቀራሉ · ምልክቱ ለዚህ ሳምንት ብቻ</p>
+          <button type="button" onClick={() => changeDate(shiftWeek(date, 1))}>
+            የሚቀጥለው ሳምንት
+          </button>
+        </section>
+      ) : null}
+
+      {day ? (
         <>
           <section className="hero">
             <p className="eyebrow">{day === "friday" ? "የአርብ መዝገብ" : "የቅዳሜ መዝገብ"}</p>
             <h1>{formatAmharicDate(date)}</h1>
             <p>
               {day === "friday"
-                ? "በአርብ አንድ ቡድን ብቻ ይመዘገባል። እያንዳንዱን ተማሪ ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ይበሉ።"
-                : "በቅዳሜ ሦስት ቡድኖች አሉ። እያንዳንዱን ቡድን ለብቻው ይክፈቱና ተማሪዎቹን ይመዝግቡ።"}
+                ? "የአርብ ቡድንና የተማሪዎች ስም በየሳምንቱ ይቀራሉ። በእያንዳንዱ አርብ ምልክቱን ብቻ ይሙሉ።"
+                : "ሦስቱ የቅዳሜ ቡድኖችና ስሞቻቸው በየሳምንቱ ይቀራሉ። በእያንዳንዱ ቅዳሜ ምልክቱን ብቻ ይሙሉ።"}
             </p>
           </section>
 

@@ -1,23 +1,25 @@
-import { Noto_Sans_Ethiopic, Noto_Serif_Ethiopic } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const sans = Noto_Sans_Ethiopic({
-  subsets: ["latin", "ethiopic"],
-  weight: ["400", "500", "600", "700"],
+const sans = localFont({
+  src: [
+    { path: "../public/fonts/NotoSansEthiopic-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../public/fonts/NotoSansEthiopic-Bold.ttf", weight: "700", style: "normal" },
+  ],
   variable: "--font-sans",
   display: "swap",
-});
-
-const serif = Noto_Serif_Ethiopic({
-  subsets: ["latin", "ethiopic"],
-  weight: ["600", "700"],
-  variable: "--font-serif",
-  display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata = {
   title: "አቴንዳንስ",
   description: "የአርብ እና የቅዳሜ የተማሪዎች መገኘት መዝገብ",
+  applicationName: "አቴንዳንስ",
+  appleWebApp: {
+    capable: true,
+    title: "አቴንዳንስ",
+    statusBarStyle: "default",
+  },
   robots: { index: false, follow: false },
 };
 
@@ -29,7 +31,11 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="am" className={`${sans.variable} ${serif.variable}`}>
+    <html lang="am" className={sans.variable}>
+      <head>
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+      </head>
       <body>
         <div className="app">{children}</div>
       </body>
