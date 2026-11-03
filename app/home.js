@@ -130,20 +130,25 @@ export default function HomeScreen() {
 
           <div className="cards">
             {progressList.map(({ group, progress }, index) => (
-              <Link key={group.id} href={`/group/${group.id}?date=${date}`} className={`card ${group.id}`}>
-                <div className="card-top">
-                  {groups.length > 1 ? <span className="index-badge">{index + 1}</span> : null}
-                  <h2>{group.name}</h2>
-                  <span className={progress.completed ? "pill done" : "pill"}>{progressLabel(progress)}</span>
-                </div>
-                <p>
-                  {progress.total} ተማሪዎች · {progress.marked} ተመዝግበዋል
-                </p>
-                <p className="counts-inline">
-                  ተገኝተዋል {progress.present} · ቀርተዋል {progress.absent} · ፈቃድ {progress.permission}
-                </p>
-                <span className="open">መዝገቡን ክፈት</span>
-              </Link>
+              <article key={group.id} className={`card ${group.id}`}>
+                <Link href={`/group/${group.id}?date=${date}`} className="card-main">
+                  <div className="card-top">
+                    {groups.length > 1 ? <span className="index-badge">{index + 1}</span> : null}
+                    <h2>{group.name}</h2>
+                    <span className={progress.completed ? "pill done" : "pill"}>{progressLabel(progress)}</span>
+                  </div>
+                  <p>
+                    {progress.total} ተማሪዎች · {progress.marked} ተመዝግበዋል
+                  </p>
+                  <p className="counts-inline">
+                    ተገኝተዋል {progress.present} · ቀርተዋል {progress.absent} · ፈቃድ {progress.permission}
+                  </p>
+                  <span className="open">መዝገቡን ክፈት</span>
+                </Link>
+                <Link href={`/group/${group.id}/summary`} className="summary-link">
+                  ማጠቃለያ
+                </Link>
+              </article>
             ))}
           </div>
 

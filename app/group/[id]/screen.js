@@ -152,6 +152,11 @@ export default function GroupScreen() {
         <p className="eyebrow">{formatAmharicDate(date)}</p>
         <h1>{group.name}</h1>
         <p>የተማሪዎች ስም በየሳምንቱ ይቆያል። ለዚህ ቀን ብቻ ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ይምረጡ።</p>
+        <div className="actions">
+          <Link className="ghost link-button" href={`/group/${group.id}/summary`}>
+            የቡድኑ ማጠቃለያ
+          </Link>
+        </div>
       </section>
 
       <section className="datebar">
