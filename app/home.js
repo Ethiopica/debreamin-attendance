@@ -1,0 +1,192 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import ReportPanel from "../components/ReportPanel";
+import Shell from "../components/Shell";
+import { useStore } from "../components/useStore";
+import { submitReport } from "../lib/send-report";
+import {
+  buildReport,
+  classDay,
+  formatAmharicDate,
+  groupProgress,
+  groupsForDay,
+  initialClassDate,
+  isISODate,
+  setDayNote,
+  setLastDate,
+  setTeacherName,
+  stepClassDay,
+  upcomingWeekday,
+} from "../lib/model";
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const requested = params.get("date") || "";
+  const { state, update, ready, storage } = useStore();
+  const [busy, setBusy] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  useEffect(() => {
+    if (!ready) return;
+    if (isISODate(requested)) return;
+    const initial = isISODate(state.lastDate) ? state.lastDate : initialClassDate();
+    router.replace(`/?date=${initial}`, { scroll: false });
+  }, [ready, requested, router, state]);
+
+  useEffect(() => {
+    if (!ready || !isISODate(requested) || state.lastDate === requested) return;
+    update((current) => setLastDate(current, requested));
+  }, [ready, requested, state, update]);
+
+  if (!ready || !isISODate(requested)) {
+    return (
+      <Shell storage={storage}>
+        <p className="loading">እየተጫነ ነው…</p>
+      </Shell>
+    );
+  }
+
+  const date = requested;
+  const day = classDay(date);
+  const groups = groupsForDay(state, date);
+  const progressList = groups.map((group) => ({
+    group,
+    progress: groupProgress(state, date, group.id),
+  }));
+  const allComplete = progressList.length > 0 && progressList.every((item) => item.progress.completed);
+
+  function changeDate(next) {
+    setFeedback(null);
+    if (next !== date) router.replace(`/?date=${next}`, { scroll: false });
+  }
+
+  async function runReport(mode) {
+    setBusy(mode);
+    setFeedback(null);
+    try {
+      const report = buildReport(
+        state,
+        date,
+        groups.map((group) => group.id),
+      );
+      const message = await submitReport(report, mode);
+      setFeedback({ type: "ok", text: message });
+    } catch (error) {
+      setFeedback({ type: "error", text: error.message });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <Shell date={date} storage={storage}>
+      <section className="datebar">
+        <button type="button" onClick={() => changeDate(stepClassDay(date, -1))}>
+          ያለፈው
+        </button>
+        <label className="date-field">
+          <span>ቀን</span>
+          <input
+            type="date"
+            value={date}
+            onChange={(event) => {
+              if (event.target.value) changeDate(event.target.value);
+            }}
+          />
+        </label>
+        <button type="button" onClick={() => changeDate(stepClassDay(date, 1))}>
+          ቀጣይ
+        </button>
+      </section>
+
+      {day ? (
+        <>
+          <section className="hero">
+            <p className="eyebrow">{day === "friday" ? "የአርብ መዝገብ" : "የቅዳሜ መዝገብ"}</p>
+            <h1>{formatAmharicDate(date)}</h1>
+            <p>
+              {day === "friday"
+                ? "በአርብ አንድ ቡድን ብቻ ይመዘገባል። እያንዳንዱን ተማሪ ተገኝተዋል፣ ቀርተዋል ወይም ፈቃድ ጠይቀዋል ይበሉ።"
+                : "በቅዳሜ ሦስት ቡድኖች አሉ። እያንዳንዱን ቡድን ለብቻው ይክፈቱና ተማሪዎቹን ይመዝግቡ።"}
+            </p>
+          </section>
+
+          <div className="cards">
+            {progressList.map(({ group, progress }, index) => (
+              <Link key={group.id} href={`/group/${group.id}?date=${date}`} className={`card ${group.id}`}>
+                <div className="card-top">
+                  {groups.length > 1 ? <span className="index-badge">{index + 1}</span> : null}
+                  <h2>{group.name}</h2>
+                  <span className={progress.completed ? "pill done" : "pill"}>{progressLabel(progress)}</span>
+                </div>
+                <p>
+                  {progress.total} ተማሪዎች · {progress.marked} ተመዝግበዋል
+                </p>
+                <p className="counts-inline">
+                  ተገኝተዋል {progress.present} · ቀርተዋል {progress.absent} · ፈቃድ {progress.permission}
+                </p>
+                <span className="open">መዝገቡን ክፈት</span>
+              </Link>
+            ))}
+          </div>
+
+          {allComplete ? (
+            <ReportPanel
+              title={day === "saturday" ? "የሦስቱ ቡድኖች ሪፖርት" : "የቀኑ ሪፖርት"}
+              description={
+                day === "saturday"
+                  ? "ሦስቱም ቡድኖች ተጠናቀዋል። አንድ ላይ የተሰበሰበ ፒዲኤፍ ወደ ኢሜይሉ ይላካል።"
+                  : "ቡድኑ ተጠናቋል። ፒዲኤፉ ወደ ኢሜይሉ ይላካል።"
+              }
+              teacherName={state.teacherName}
+              onTeacherName={(name) => update((current) => setTeacherName(current, name))}
+              note={state.records?.[date]?.note || ""}
+              onNote={(note) => update((current) => setDayNote(current, date, note))}
+              noteLabel="የቀኑ ማስታወሻ"
+              sendLabel={day === "saturday" ? "የሦስቱን ቡድኖች ሪፖርት ላክ" : "የቀኑን ሪፖርት ላክ"}
+              busy={busy}
+              feedback={feedback}
+              onSend={() => runReport("email")}
+              onDownload={() => runReport("download")}
+            />
+          ) : (
+            <section className="wait-note">
+              <h2>ሪፖርት</h2>
+              <p>
+                {day === "saturday"
+                  ? "የቀኑ ሙሉ ሪፖርት የሚላከው ሦስቱም ቡድኖች ከተጠናቀቁ በኋላ ነው። የተጠናቀቀ ቡድንን ሪፖርት ለብቻው ከመዝገቡ ውስጥ መላክ ይቻላል።"
+                  : "ሪፖርቱ የሚላከው ቡድኑ ከተጠናቀቀ በኋላ ነው።"}
+              </p>
+            </section>
+          )}
+        </>
+      ) : (
+        <section className="notice">
+          <p className="eyebrow">{formatAmharicDate(date)}</p>
+          <h1>በዚህ ቀን ክፍል የለም</h1>
+          <p>አቴንዳንስ የሚመዘገበው አርብ ለአንድ ቡድን፣ ቅዳሜ ደግሞ ለሦስት ቡድኖች ነው።</p>
+          <div className="actions">
+            <button type="button" className="primary" onClick={() => changeDate(upcomingWeekday(date, 5))}>
+              ወደ አርብ
+            </button>
+            <button type="button" className="ghost" onClick={() => changeDate(upcomingWeekday(date, 6))}>
+              ወደ ቅዳሜ
+            </button>
+          </div>
+        </section>
+      )}
+    </Shell>
+  );
+}
+
+function progressLabel(progress) {
+  if (progress.total === 0) return "ተማሪ የለም";
+  if (progress.completed) return "ተጠናቋል";
+  if (progress.marked === 0) return "አልተጀመረም";
+  if (progress.marked === progress.total) return "ለመጨረስ ዝግጁ";
+  return "በሂደት ላይ";
+}
