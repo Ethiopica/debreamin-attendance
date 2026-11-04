@@ -39,7 +39,13 @@ export async function POST(request) {
     return response;
   }
 
-  const loggedIn = await loginUser(email, password);
+  let loggedIn;
+  try {
+    loggedIn = await loginUser(email, password);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "መግባት አልተሳካም። እንደገና ይሞክሩ።" }, { status: 500 });
+  }
   if (loggedIn.error || !loggedIn.token) {
     return NextResponse.json({ error: loggedIn.error || "መግባት አልተሳካም።" }, { status: 401 });
   }
