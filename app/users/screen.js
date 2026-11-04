@@ -71,7 +71,10 @@ export default function UsersScreen() {
       <section className="hero">
         <p className="eyebrow">አስተዳዳሪ</p>
         <h1>ተጠቃሚዎች</h1>
-        <p>አስተዳዳሪው {user?.email} ነው። ለእያንዳንዱ መምህር የሚያየውን ቡድን ብቻ ይምረጡ።</p>
+        <p>
+          አስተዳዳሪው {user?.email} ነው። ለእያንዳንዱ መምህር የሚያየውን ቡድን ብቻ ይምረጡ። የሰጡት የይለፍ ቃል ጊዜያዊ ነው።
+          መምህሩ ሲገባ ወደ የራሱ ይቀይረዋል።
+        </p>
       </section>
 
       <form className="user-form" onSubmit={create}>

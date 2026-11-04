@@ -40,8 +40,11 @@ export default function AuthGate({ children }) {
   useEffect(() => {
     if (!ready) return;
     if (!user && pathname !== "/login") router.replace("/login");
-    if (user && pathname === "/login") router.replace("/");
-    if (user && pathname === "/users" && user.role !== "admin") router.replace("/");
+    if (user && pathname === "/login") router.replace(user.mustChangePassword ? "/password" : "/");
+    if (user?.mustChangePassword && pathname !== "/password" && pathname !== "/login") {
+      router.replace("/password");
+    }
+    if (user && !user.mustChangePassword && pathname === "/users" && user.role !== "admin") router.replace("/");
   }, [ready, user, pathname, router]);
 
   async function logout() {
@@ -51,6 +54,9 @@ export default function AuthGate({ children }) {
   }
 
   if (!ready || (!user && pathname !== "/login") || (user && pathname === "/login")) {
+    return <p className="loading">እየተጫነ ነው…</p>;
+  }
+  if (user?.mustChangePassword && pathname !== "/password") {
     return <p className="loading">እየተጫነ ነው…</p>;
   }
   if (pathname === "/users" && user?.role !== "admin") {

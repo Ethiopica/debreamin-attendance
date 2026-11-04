@@ -25,6 +25,7 @@ export default function Shell({ date, storage = "local", children }) {
       {user ? (
         <div className="account-row">
           <span>{user.name || user.email}</span>
+          <Link href="/password">የይለፍ ቃል</Link>
           {user.role === "admin" ? <Link href="/users">ተጠቃሚዎች</Link> : null}
           <button type="button" onClick={logout}>
             ውጣ
