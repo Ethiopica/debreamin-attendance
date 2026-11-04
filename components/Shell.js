@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { isISODate } from "../lib/model";
+import { useSession } from "./AuthGate";
 import InstallApp from "./InstallApp";
 
 export default function Shell({ date, storage = "local", children }) {
+  const { user, logout } = useSession();
   const href = isISODate(date) ? `/?date=${date}` : "/";
   const message =
     storage === "cloud"
@@ -20,6 +22,15 @@ export default function Shell({ date, storage = "local", children }) {
         </Link>
         <p className="tagline">የመገኘት መዝገብ</p>
       </header>
+      {user ? (
+        <div className="account-row">
+          <span>{user.name || user.email}</span>
+          {user.role === "admin" ? <Link href="/users">ተጠቃሚዎች</Link> : null}
+          <button type="button" onClick={logout}>
+            ውጣ
+          </button>
+        </div>
+      ) : null}
       <InstallApp />
       {children}
       <footer className={storage === "error" ? "site-footer error" : "site-footer"}>{message}</footer>

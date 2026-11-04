@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { canUseGroup } from "../../../lib/access";
+import { readSessionUser } from "../../../lib/session";
 import { buildAttendancePdf } from "../../../lib/pdf";
 import { emailBody, emailSubject } from "../../../lib/report-text";
 import {
-  REPORT_EMAIL,
+  REPORT_EMAILS,
   formatAmharicDate,
   formatAmharicStamp,
   normalizeReport,
@@ -25,7 +27,13 @@ export async function POST(request) {
     return NextResponse.json({ error: "የመላኪያ አይነቱ አልታወቀም።" }, { status: 400 });
   }
 
+  const user = await readSessionUser();
+  if (!user) return NextResponse.json({ error: "መጀመሪያ ይግቡ።" }, { status: 401 });
+
   const report = normalizeReport(body);
+  if (report.groups.some((group) => !canUseGroup(user, group.id))) {
+    return NextResponse.json({ error: "ይህ ቡድን ለእርስዎ አልተፈቀደም።" }, { status: 403 });
+  }
   const problem = validateReport(report);
   if (problem) return NextResponse.json({ error: problem }, { status: 400 });
   report.dateLabel = formatAmharicDate(report.date);
@@ -63,7 +71,7 @@ export async function POST(request) {
   try {
     await transport.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: REPORT_EMAIL,
+      to: REPORT_EMAILS,
       subject: emailSubject(report),
       text: emailBody(report),
       attachments: [
@@ -82,7 +90,7 @@ export async function POST(request) {
     );
   }
 
-  return NextResponse.json({ ok: true, message: `ሪፖርቱ ወደ ${REPORT_EMAIL} ተልኳል።` });
+  return NextResponse.json({ ok: true, message: `ሪፖርቱ ወደ ${REPORT_EMAILS.join(" እና ")} ተልኳል።` });
 }
 
 function createTransport() {

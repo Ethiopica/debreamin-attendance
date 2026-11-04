@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReportPanel from "../components/ReportPanel";
 import Shell from "../components/Shell";
+import { useSession } from "../components/AuthGate";
 import { useStore } from "../components/useStore";
 import { submitReport } from "../lib/send-report";
 import {
@@ -27,6 +28,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const requested = params.get("date") || "";
+  const { user } = useSession();
   const { state, update, ready, storage } = useStore();
   const [busy, setBusy] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -53,7 +55,9 @@ export default function HomeScreen() {
 
   const date = requested;
   const day = classDay(date);
-  const groups = groupsForDay(state, date);
+  const allowed = new Set(user?.groups || []);
+  const groups = groupsForDay(state, date).filter((group) => allowed.has(group.id));
+  const several = groups.length > 1;
   const progressList = groups.map((group) => ({
     group,
     progress: groupProgress(state, date, group.id),
@@ -116,7 +120,13 @@ export default function HomeScreen() {
         </section>
       ) : null}
 
-      {day ? (
+      {day && groups.length === 0 ? (
+        <section className="notice">
+          <p className="eyebrow">{formatAmharicDate(date)}</p>
+          <h1>ለዚህ ቀን ቡድን አልተፈቀደልዎትም</h1>
+          <p>አስተዳዳሪው ለእያንዳንዱ መምህር የሚያየውን ቡድን ብቻ ይመድባል።</p>
+        </section>
+      ) : day ? (
         <>
           <section className="hero">
             <p className="eyebrow">{day === "friday" ? "የአርብ መዝገብ" : "የቅዳሜ መዝገብ"}</p>
@@ -124,7 +134,9 @@ export default function HomeScreen() {
             <p>
               {day === "friday"
                 ? "የአርብ ቡድንና የተማሪዎች ስም በየሳምንቱ ይቀራሉ። በእያንዳንዱ አርብ ምልክቱን ብቻ ይሙሉ።"
-                : "ሦስቱ የቅዳሜ ቡድኖችና ስሞቻቸው በየሳምንቱ ይቀራሉ። በእያንዳንዱ ቅዳሜ ምልክቱን ብቻ ይሙሉ።"}
+                : several
+                  ? "የተፈቀዱት የቅዳሜ ቡድኖችና ስሞቻቸው በየሳምንቱ ይቀራሉ። በእያንዳንዱ ቅዳሜ ምልክቱን ብቻ ይሙሉ።"
+                  : "የዚህ ቡድን ስሞች በየሳምንቱ ይቀራሉ። በእያንዳንዱ ቅዳሜ ምልክቱን ብቻ ይሙሉ።"}
             </p>
           </section>
 
@@ -154,10 +166,10 @@ export default function HomeScreen() {
 
           {allComplete ? (
             <ReportPanel
-              title={day === "saturday" ? "የሦስቱ ቡድኖች ሪፖርት" : "የቀኑ ሪፖርት"}
+              title={several ? "የቡድኖች ሪፖርት" : "የቀኑ ሪፖርት"}
               description={
-                day === "saturday"
-                  ? "ሦስቱም ቡድኖች ተጠናቀዋል። አንድ ላይ የተሰበሰበ ፒዲኤፍ ወደ ኢሜይሉ ይላካል።"
+                several
+                  ? "የተፈቀዱት ቡድኖች ተጠናቀዋል። አንድ ላይ የተሰበሰበ ፒዲኤፍ ወደ ኢሜይሉ ይላካል።"
                   : "ቡድኑ ተጠናቋል። ፒዲኤፉ ወደ ኢሜይሉ ይላካል።"
               }
               teacherName={state.teacherName}
@@ -165,7 +177,7 @@ export default function HomeScreen() {
               note={state.records?.[date]?.note || ""}
               onNote={(note) => update((current) => setDayNote(current, date, note))}
               noteLabel="የቀኑ ማስታወሻ"
-              sendLabel={day === "saturday" ? "የሦስቱን ቡድኖች ሪፖርት ላክ" : "የቀኑን ሪፖርት ላክ"}
+              sendLabel={several ? "የቡድኖችን ሪፖርት ላክ" : "የቀኑን ሪፖርት ላክ"}
               busy={busy}
               feedback={feedback}
               onSend={() => runReport("email")}
@@ -175,8 +187,8 @@ export default function HomeScreen() {
             <section className="wait-note">
               <h2>ሪፖርት</h2>
               <p>
-                {day === "saturday"
-                  ? "የቀኑ ሙሉ ሪፖርት የሚላከው ሦስቱም ቡድኖች ከተጠናቀቁ በኋላ ነው። የተጠናቀቀ ቡድንን ሪፖርት ለብቻው ከመዝገቡ ውስጥ መላክ ይቻላል።"
+                {several
+                  ? "የቀኑ ሪፖርት የሚላከው የተፈቀዱት ቡድኖች ከተጠናቀቁ በኋላ ነው። የተጠናቀቀ ቡድንን ሪፖርት ለብቻው ከመዝገቡ ውስጥ መላክ ይቻላል።"
                   : "ሪፖርቱ የሚላከው ቡድኑ ከተጠናቀቀ በኋላ ነው።"}
               </p>
             </section>

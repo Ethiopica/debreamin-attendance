@@ -237,3 +237,46 @@ revoke all on function public.load_attendance() from public, anon, authenticated
 revoke all on function public.save_attendance(jsonb) from public, anon, authenticated;
 grant execute on function public.load_attendance() to service_role;
 grant execute on function public.save_attendance(jsonb) to service_role;
+
+-- Login accounts. The payload holds password hashes and session tokens, never the public anon key.
+create table if not exists public.app_auth (
+  id text primary key,
+  payload jsonb not null
+);
+
+insert into public.app_auth (id, payload)
+values ('default', '{"users":[],"sessions":[]}'::jsonb)
+on conflict (id) do nothing;
+
+alter table public.app_auth enable row level security;
+
+create or replace function public.load_auth()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select payload from public.app_auth where id = 'default'),
+    '{"users":[],"sessions":[]}'::jsonb
+  );
+$$;
+
+create or replace function public.save_auth(payload jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.app_auth (id, payload)
+  values ('default', payload)
+  on conflict (id) do update set payload = excluded.payload;
+end;
+$$;
+
+revoke all on function public.load_auth() from public, anon, authenticated;
+revoke all on function public.save_auth(jsonb) from public, anon, authenticated;
+grant execute on function public.load_auth() to service_role;
+grant execute on function public.save_auth(jsonb) to service_role;

@@ -592,6 +592,55 @@ button.calendar-day { border-color: var(--line); background: var(--cream); curso
 
 .site-footer.error { color: var(--absent); font-weight: 700; }
 
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.account-row a, .account-row button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--forest);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.login-form, .user-form, .user-row {
+  margin-top: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.user-form h2 { margin-bottom: 8px; }
+
+.group-checks {
+  margin: 14px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.group-checks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.user-list { display: grid; gap: 12px; }
+
+.user-row .actions { margin-top: 12px; }
+
 .loading { padding: 48px 0; color: var(--forest); font-weight: 700; }
 
 @media (max-width: 640px) {

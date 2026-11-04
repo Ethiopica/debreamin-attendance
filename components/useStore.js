@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { mergeGroupState } from "../lib/access";
 import { loadState, saveState } from "../lib/model";
 
 export function useStore() {
@@ -42,9 +43,11 @@ export function useStore() {
   useEffect(() => {
     let ignore = false;
     (async () => {
+      let status = 0;
       let remote = { configured: false };
       try {
         const response = await fetch("/api/state", { cache: "no-store" });
+        status = response.status;
         remote = await response.json();
         if (!response.ok) remote = { ...remote, failed: true };
       } catch {
@@ -53,6 +56,35 @@ export function useStore() {
       if (ignore) return;
 
       const local = loadState();
+      if (status === 401) {
+        mode.current = "local";
+        setState(local);
+        setStorage("local");
+        return;
+      }
+      if (remote.partial && remote.state) {
+        const groups = remote.groups || [];
+        const remoteEmpty =
+          remote.state.students.length === 0 && Object.keys(remote.state.records || {}).length === 0;
+        const localHasAllowed =
+          local.students.some((student) => groups.includes(student.groupId)) ||
+          Object.values(local.records || {}).some((day) =>
+            Object.keys(day?.groups || {}).some((groupId) => groups.includes(groupId)),
+          );
+        mode.current = "cloud";
+        if (remoteEmpty && localHasAllowed) {
+          saveState(local);
+          setState(local);
+          setStorage("cloud");
+          queue(local);
+          return;
+        }
+        const initial = mergeGroupState(local, remote.state, groups);
+        saveState(initial);
+        setState(initial);
+        setStorage("cloud");
+        return;
+      }
       if (remote.configured && remote.state && !remote.failed) {
         mode.current = "cloud";
         const remoteEmpty =

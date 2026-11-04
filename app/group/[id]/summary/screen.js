@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Shell from "../../../../components/Shell";
+import { useSession } from "../../../../components/AuthGate";
 import { useStore } from "../../../../components/useStore";
+import { canUseGroup } from "../../../../lib/access";
 import {
   buildGroupSummary,
   classDay,
@@ -52,6 +54,7 @@ function savePicks(groupId, isos) {
 export default function SummaryScreen() {
   const params = useParams();
   const id = params.id;
+  const { user } = useSession();
   const { state, update, ready, storage } = useStore();
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -81,11 +84,11 @@ export default function SummaryScreen() {
   }
 
   const group = state.groups.find((item) => item.id === id);
-  if (!group) {
+  if (!group || !canUseGroup(user, group.id)) {
     return (
       <Shell storage={storage}>
         <section className="notice">
-          <h1>ይህ ቡድን አልተገኘም</h1>
+          <h1>{group ? "ይህ ቡድን ለእርስዎ አልተፈቀደም።" : "ይህ ቡድን አልተገኘም"}</h1>
           <Link className="primary link-button" href="/">
             ተመለስ
           </Link>

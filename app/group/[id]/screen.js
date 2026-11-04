@@ -5,7 +5,9 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ReportPanel from "../../../components/ReportPanel";
 import Shell from "../../../components/Shell";
+import { useSession } from "../../../components/AuthGate";
 import { useStore } from "../../../components/useStore";
+import { canUseGroup } from "../../../lib/access";
 import { submitReport } from "../../../lib/send-report";
 import {
   STATUS_BUTTON,
@@ -38,6 +40,7 @@ export default function GroupScreen() {
   const search = useSearchParams();
   const id = params.id;
   const requested = search.get("date") || "";
+  const { user } = useSession();
   const { state, update, ready, storage } = useStore();
   const [busy, setBusy] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -83,11 +86,11 @@ export default function GroupScreen() {
     );
   }
 
-  if (!group) {
+  if (!group || !canUseGroup(user, group.id)) {
     return (
       <Shell date={date} storage={storage}>
         <section className="notice">
-          <h1>ይህ ቡድን አልተገኘም</h1>
+          <h1>{group ? "ይህ ቡድን ለእርስዎ አልተፈቀደም።" : "ይህ ቡድን አልተገኘም"}</h1>
           <Link className="primary link-button" href={`/?date=${date}`}>
             ተመለስ
           </Link>

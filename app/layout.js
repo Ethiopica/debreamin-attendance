@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import AuthGate from "../components/AuthGate";
 import "./globals.css";
 
 const sans = localFont({
@@ -37,7 +38,9 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body>
-        <div className="app">{children}</div>
+        <div className="app">
+          <AuthGate>{children}</AuthGate>
+        </div>
       </body>
     </html>
   );
