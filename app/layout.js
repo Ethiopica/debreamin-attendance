@@ -14,7 +14,7 @@ const sans = localFont({
 
 export const metadata = {
   title: "አቴንዳንስ",
-  description: "የአርብ እና የቅዳሜ የተማሪዎች መገኘት መዝገብ",
+  description: "የእሑድ እና የቅዳሜ የተማሪዎች መገኘት መዝገብ",
   applicationName: "አቴንዳንስ",
   appleWebApp: {
     capable: true,

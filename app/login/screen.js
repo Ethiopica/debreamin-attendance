@@ -5,13 +5,16 @@ import { useState } from "react";
 import Shell from "../../components/Shell";
 import { useSession } from "../../components/AuthGate";
 
+const ADMIN_EMAIL = "eliobais@gmail.com";
+
 export default function LoginScreen() {
   const router = useRouter();
   const { needsSetup, refresh } = useSession();
-  const [email, setEmail] = useState(needsSetup ? "eliobais@gmail.com" : "");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const settingUp = needsSetup && email.trim().toLowerCase() === ADMIN_EMAIL;
 
   async function submit(event) {
     event.preventDefault();
@@ -22,9 +25,9 @@ export default function LoginScreen() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: needsSetup ? "eliobais@gmail.com" : email,
+          email,
           password,
-          setup: needsSetup,
+          setup: settingUp,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -41,11 +44,11 @@ export default function LoginScreen() {
   return (
     <Shell>
       <section className="hero">
-        <p className="eyebrow">{needsSetup ? "የመጀመሪያ ማዘጋጃ" : "መግቢያ"}</p>
-        <h1>{needsSetup ? "የአስተዳዳሪ የይለፍ ቃል" : "ይግቡ"}</h1>
+        <p className="eyebrow">መግቢያ</p>
+        <h1>ይግቡ</h1>
         <p>
           {needsSetup
-            ? "አስተዳዳሪው eliobais@gmail.com ነው። የይለፍ ቃል ይፍጠሩ፣ ከዚያ ለእያንዳንዱ ቡድን መምህር መዳረሻ ይስጡ።"
+            ? "የራስዎን ኢሜይል ይጻፉ። አስተዳዳሪ ከሆኑ eliobais@gmail.com ይጻፉና የመጀመሪያውን የይለፍ ቃል ያስቀምጡ።"
             : "በኢሜይልና በየይለፍ ቃል ይግቡ። መምህር የተፈቀደለትን ቡድን ብቻ ያያል።"}
         </p>
       </section>
@@ -53,21 +56,26 @@ export default function LoginScreen() {
         <label className="field">
           <span>ኢሜይል</span>
           <input
+            name="email"
             type="email"
-            value={needsSetup ? "eliobais@gmail.com" : email}
-            readOnly={needsSetup}
-            autoComplete="username"
+            inputMode="email"
+            value={email}
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             maxLength={120}
             required
             onChange={(event) => setEmail(event.target.value)}
           />
         </label>
         <label className="field">
-          <span>{needsSetup ? "አዲስ የይለፍ ቃል" : "የይለፍ ቃል"}</span>
+          <span>የይለፍ ቃል</span>
           <input
+            name="password"
             type="password"
             value={password}
-            autoComplete={needsSetup ? "new-password" : "current-password"}
+            autoComplete="current-password"
             minLength={8}
             maxLength={80}
             required
@@ -76,7 +84,7 @@ export default function LoginScreen() {
         </label>
         {error ? <p className="feedback error">{error}</p> : null}
         <button type="submit" className="primary" disabled={busy}>
-          {busy ? "እየተጠበቀ ነው…" : needsSetup ? "የይለፍ ቃል አስቀምጥ" : "ግባ"}
+          {busy ? "እየተጠበቀ ነው…" : settingUp ? "የይለፍ ቃል አስቀምጥ" : "ግባ"}
         </button>
       </form>
     </Shell>

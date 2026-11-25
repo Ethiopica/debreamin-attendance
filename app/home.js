@@ -129,11 +129,11 @@ export default function HomeScreen() {
       ) : day ? (
         <>
           <section className="hero">
-            <p className="eyebrow">{day === "friday" ? "የአርብ መዝገብ" : "የቅዳሜ መዝገብ"}</p>
+            <p className="eyebrow">{day === "sunday" ? "የእሑድ መዝገብ" : "የቅዳሜ መዝገብ"}</p>
             <h1>{formatAmharicDate(date)}</h1>
             <p>
-              {day === "friday"
-                ? "የአርብ ቡድንና የተማሪዎች ስም በየሳምንቱ ይቀራሉ። በእያንዳንዱ አርብ ምልክቱን ብቻ ይሙሉ።"
+              {day === "sunday"
+                ? "የእሑድ ቡድንና የተማሪዎች ስም በየሳምንቱ ይቀራሉ። በእያንዳንዱ እሑድ ምልክቱን ብቻ ይሙሉ።"
                 : several
                   ? "የተፈቀዱት የቅዳሜ ቡድኖችና ስሞቻቸው በየሳምንቱ ይቀራሉ። በእያንዳንዱ ቅዳሜ ምልክቱን ብቻ ይሙሉ።"
                   : "የዚህ ቡድን ስሞች በየሳምንቱ ይቀራሉ። በእያንዳንዱ ቅዳሜ ምልክቱን ብቻ ይሙሉ።"}
@@ -198,10 +198,10 @@ export default function HomeScreen() {
         <section className="notice">
           <p className="eyebrow">{formatAmharicDate(date)}</p>
           <h1>በዚህ ቀን ክፍል የለም</h1>
-          <p>አቴንዳንስ የሚመዘገበው አርብ ለአንድ ቡድን፣ ቅዳሜ ደግሞ ለሦስት ቡድኖች ነው።</p>
+          <p>አቴንዳንስ የሚመዘገበው እሑድ ለአንድ ቡድን፣ ቅዳሜ ደግሞ ለሦስት ቡድኖች ነው።</p>
           <div className="actions">
-            <button type="button" className="primary" onClick={() => changeDate(upcomingWeekday(date, 5))}>
-              ወደ አርብ
+            <button type="button" className="primary" onClick={() => changeDate(upcomingWeekday(date, 0))}>
+              ወደ እሑድ
             </button>
             <button type="button" className="ghost" onClick={() => changeDate(upcomingWeekday(date, 6))}>
               ወደ ቅዳሜ

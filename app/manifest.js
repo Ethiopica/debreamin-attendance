@@ -3,7 +3,7 @@ export default function manifest() {
     id: "/",
     name: "አቴንዳንስ",
     short_name: "አቴንዳንስ",
-    description: "የአርብ እና የቅዳሜ የተማሪዎች መገኘት መዝገብ",
+    description: "የእሑድ እና የቅዳሜ የተማሪዎች መገኘት መዝገብ",
     lang: "am",
     dir: "ltr",
     start_url: "/",

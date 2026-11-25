@@ -13,7 +13,7 @@ on conflict (id) do nothing;
 
 create table if not exists public.class_groups (
   id text primary key,
-  day text not null check (day in ('friday', 'saturday')),
+  day text not null check (day in ('sunday', 'saturday')),
   name text not null,
   sort_order integer not null
 );
@@ -22,8 +22,19 @@ insert into public.class_groups (id, day, name, sort_order) values
   ('sat-1', 'saturday', 'የቅዳሜ የመጀመሪያ ቡድን', 1),
   ('sat-2', 'saturday', 'የቅዳሜ ሁለተኛ ቡድን', 2),
   ('sat-3', 'saturday', 'የቅዳሜ ሦስተኛ ቡድን', 3),
-  ('fri-1', 'friday', 'የአርብ ቡድን', 4)
+  ('fri-1', 'sunday', 'የእሑድ ቡድን', 4)
 on conflict (id) do nothing;
+
+alter table public.class_groups drop constraint if exists class_groups_day_check;
+
+update public.class_groups
+set
+  day = 'sunday',
+  name = case when name = 'የአርብ ቡድን' then 'የእሑድ ቡድን' else name end
+where id = 'fri-1';
+
+alter table public.class_groups
+  add constraint class_groups_day_check check (day in ('sunday', 'saturday'));
 
 create table if not exists public.students (
   id text primary key,

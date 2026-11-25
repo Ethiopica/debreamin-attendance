@@ -13,6 +13,7 @@ import {
   STATUS_BUTTON,
   addStudents,
   buildReport,
+  DAY_LABEL,
   classDay,
   commitGroupName,
   formatAmharicDate,
@@ -108,13 +109,11 @@ export default function GroupScreen() {
           <p className="eyebrow">{formatAmharicDate(date)}</p>
           <h1>{group.name}</h1>
           <p>
-            {group.day === "friday"
-              ? "ይህ የአርብ ቡድን ነው። መዝገቡ የሚሞላው አርብ ብቻ ነው።"
-              : "ይህ የቅዳሜ ቡድን ነው። መዝገቡ የሚሞላው ቅዳሜ ብቻ ነው።"}
+            ይህ የ{DAY_LABEL[group.day]} ቡድን ነው። መዝገቡ የሚሞላው {DAY_LABEL[group.day]} ብቻ ነው።
           </p>
           <div className="actions">
             <Link className="primary link-button" href={`/group/${group.id}?date=${target}`}>
-              ወደ {group.day === "friday" ? "አርብ" : "ቅዳሜ"} ሂድ
+              ወደ {DAY_LABEL[group.day]} ሂድ
             </Link>
             <Link className="ghost link-button" href={`/?date=${date}`}>
               ተመለስ

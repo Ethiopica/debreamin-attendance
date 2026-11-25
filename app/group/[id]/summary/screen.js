@@ -8,6 +8,7 @@ import { useSession } from "../../../../components/AuthGate";
 import { useStore } from "../../../../components/useStore";
 import { canUseGroup } from "../../../../lib/access";
 import {
+  DAY_LABEL,
   buildGroupSummary,
   classDay,
   formatAmharicDate,
@@ -18,6 +19,7 @@ import {
   setMark,
   studiedDates,
   toISO,
+  weekdayNumber,
 } from "../../../../lib/model";
 import { downloadSummary } from "../../../../lib/send-report";
 
@@ -101,7 +103,7 @@ export default function SummaryScreen() {
   const chosen = picked.filter((iso) => isISODate(iso) && classDay(iso) === group.day);
   const view = buildGroupSummary(state, group.id, chosen);
   const back = isISODate(state.lastDate) ? `/group/${group.id}?date=${state.lastDate}` : `/group/${group.id}`;
-  const dayWord = group.day === "friday" ? "አርብ" : "ቅዳሜ";
+  const dayWord = DAY_LABEL[group.day] || "ቅዳሜ";
 
   function choose(next) {
     const kept = [...new Set(next.filter((iso) => isISODate(iso) && classDay(iso) === group.day))].sort();
@@ -140,7 +142,7 @@ export default function SummaryScreen() {
       {monthIso ? (
         <DateCalendar
           monthIso={monthIso}
-          weekday={group.day === "friday" ? 5 : 6}
+          weekday={weekdayNumber(group.day)}
           recorded={recorded}
           chosen={chosen}
           onToggle={toggleDate}
